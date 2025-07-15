@@ -37,6 +37,8 @@ class CheckoutController extends Controller
 
     public function process(Request $request)
     {
+        // dd($request->all());
+
         $request->validate([
             'address_id' => 'required|exists:addresses,id',
             'shipping_method' => 'required|string',
@@ -131,6 +133,8 @@ class CheckoutController extends Controller
                 $snap = Snap::createTransaction($params);
                 $paymentUrl = $snap->redirect_url;
 
+                // dd($paymentUrl);
+
                 $order->update([
                     'snap_token' => $snap->token,
                     'payment_url' => $paymentUrl,
@@ -154,6 +158,8 @@ class CheckoutController extends Controller
         $orderIdRaw = $notif->order_id;
         $orderId = explode('-', $orderIdRaw)[0];
         $order = Order::find($orderId);
+
+        dd($order);
 
         if (!$order) {
             Log::error('Order not found for Midtrans callback: ' . $orderId);

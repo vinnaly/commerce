@@ -1,35 +1,40 @@
-@extends("frontend.layouts.app")
+<?php $__env->startSection("title", "Checkout"); ?>
 
-@section("title", "Checkout")
-
-@section("content")
+<?php $__env->startSection("content"); ?>
 
 	<!--================Checkout Area =================-->
 	<section class="checkout_area section-margin--small">
 		<div class="container">
-			<form action="{{ route("checkout.process") }}" method="POST">
-				@csrf
+			<form action="<?php echo e(route("checkout.process")); ?>" method="POST">
+				<?php echo csrf_field(); ?>
 				<div class="row">
 					<!-- ADDRESS SELECTION -->
 					<div class="col-12 mb-4">
 						<h3>Pilih Alamat Pengiriman</h3>
 						<div class="d-flex flex-wrap gap-3">
-							@foreach ($user->addresses as $address)
+							<?php $__currentLoopData = $user->addresses; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $address): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
 								<label class="btn btn-outline-dark address-item" for="address">
-									<input data-destination="{{ $address->destination_id }}" hidden id="address" name="address_id" required
-										type="radio" value="{{ $address->id }}">
+									<input data-destination="<?php echo e($address->destination_id); ?>" hidden id="address" name="address_id" required
+										type="radio" value="<?php echo e($address->id); ?>">
 									<div>
-										<strong>{{ $address->label }}</strong><br>
-										<small>{{ $address->destination_name ?? $address->city_name }}{{ $address->province_name }}</small><br>
-										<small class="text-muted">{{ $address->address }}</small>
+										<strong><?php echo e($address->label); ?></strong><br>
+										<small><?php echo e($address->destination_name ?? $address->city_name); ?><?php echo e($address->province_name); ?></small><br>
+										<small class="text-muted"><?php echo e($address->address); ?></small>
 									</div>
 								</label>
-							@endforeach
-							<a class="btn btn-outline-primary" href="{{ route("account.index") }}">Tambah Alamat</a>
+							<?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+							<a class="btn btn-outline-primary" href="<?php echo e(route("account.index")); ?>">Tambah Alamat</a>
 						</div>
-						@error("address_id")
-							<small class="text-danger">{{ $message }}</small>
-						@enderror
+						<?php $__errorArgs = ["address_id"];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?>
+							<small class="text-danger"><?php echo e($message); ?></small>
+						<?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
 					</div>
 
 					<!-- ORDER DETAILS -->
@@ -45,23 +50,23 @@
 								</tr>
 							</thead>
 							<tbody>
-								@php $total = 0; @endphp
-								@foreach ($cartItems as $item)
-									@php
+								<?php $total = 0; ?>
+								<?php $__currentLoopData = $cartItems; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $item): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+									<?php
 										$lineTotal = $item->product->price * $item->quantity;
 										$total += $lineTotal;
-									@endphp
-                                    <input type="hidden" name="selected_items[]" value="{{ $item->id }}">
+									?>
+                                    <input type="hidden" name="selected_items[]" value="<?php echo e($item->id); ?>">
 									<tr>
 										<td class="d-flex gap-2 align-items-center">
-											<img src="{{ asset("storage/" . $item->product->image) }}" width="60">
-											<div>{{ $item->product->name }}</div>
+											<img src="<?php echo e(asset("storage/" . $item->product->image)); ?>" width="60">
+											<div><?php echo e($item->product->name); ?></div>
 										</td>
-										<td>Rp {{ number_format($item->product->price, 0, ",", ".") }}</td>
-										<td>{{ $item->quantity }}</td>
-										<td>Rp {{ number_format($lineTotal, 0, ",", ".") }}</td>
+										<td>Rp <?php echo e(number_format($item->product->price, 0, ",", ".")); ?></td>
+										<td><?php echo e($item->quantity); ?></td>
+										<td>Rp <?php echo e(number_format($lineTotal, 0, ",", ".")); ?></td>
 									</tr>
-								@endforeach
+								<?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
 							</tbody>
 						</table>
 
@@ -79,9 +84,16 @@
 									<option value="">Pilih alamat pengiriman terlebih dahulu</option>
 								</select>
 							</div>
-							@error("shipping_method")
-								<small class="text-danger">{{ $message }}</small>
-							@enderror
+							<?php $__errorArgs = ["shipping_method"];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?>
+								<small class="text-danger"><?php echo e($message); ?></small>
+							<?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
 						</div>
 
 						<div class="form-group mt-3">
@@ -90,9 +102,16 @@
 								<option value="midtrans">Midtrans Payment</option>
 								<option value="cod">Bayar di Tempat (COD)</option>
 							</select>
-							@error("payment_method")
-								<small class="text-danger">{{ $message }}</small>
-							@enderror
+							<?php $__errorArgs = ["payment_method"];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?>
+								<small class="text-danger"><?php echo e($message); ?></small>
+							<?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
 						</div>
 					</div>
 
@@ -103,7 +122,7 @@
 							<ul class="list-unstyled">
 								<li class="d-flex justify-content-between">
 									<span>Subtotal Pesanan</span>
-									<strong>Rp {{ number_format($total, 0, ",", ".") }}</strong>
+									<strong>Rp <?php echo e(number_format($total, 0, ",", ".")); ?></strong>
 								</li>
 								<li class="d-flex justify-content-between">
 									<span>Ongkir</span>
@@ -111,7 +130,7 @@
 								</li>
 								<li class="d-flex justify-content-between mt-2 border-top pt-2">
 									<span>Total</span>
-									<strong id="total-cost">Rp {{ number_format($total, 0, ",", ".") }}</strong>
+									<strong id="total-cost">Rp <?php echo e(number_format($total, 0, ",", ".")); ?></strong>
 								</li>
 							</ul>
 
@@ -120,9 +139,16 @@
 								<label class="form-check-label" for="terms">
 									Saya menyetujui <a href="#">syarat & ketentuan*</a>
 								</label>
-								@error("terms")
-									<small class="text-danger d-block">{{ $message }}</small>
-								@enderror
+								<?php $__errorArgs = ["terms"];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?>
+									<small class="text-danger d-block"><?php echo e($message); ?></small>
+								<?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
 							</div>
 
 							<div class="text-center mt-4">
@@ -136,14 +162,14 @@
 	</section>
 	<!--================End Checkout Area =================-->
 
-	@push("scripts")
+	<?php $__env->startPush("scripts"); ?>
 		<script>
 			document.addEventListener('DOMContentLoaded', function() {
 				const addressItems = document.querySelectorAll('.address-item input[type="radio"]');
 				const shippingSelect = document.getElementById('shipping_method');
 				const shippingCostEl = document.getElementById('shipping-cost');
 				const totalCostEl = document.getElementById('total-cost');
-				const subtotal = {{ $total }};
+				const subtotal = <?php echo e($total); ?>;
 				const totalWeight = 1000;
 				const shippingLoading = document.querySelector('.shipping-loading');
 				const shippingContainer = document.querySelector('.shipping-container');
@@ -353,15 +379,17 @@
 				if (window.location.href.includes('payment_status')) {
 					const status = new URLSearchParams(window.location.search).get('payment_status');
 					if (status === 'success') {
-						window.location.href = "{{ route("payment.finish") }}";
+						window.location.href = "<?php echo e(route("payment.finish")); ?>";
 					} else if (status === 'pending') {
-						window.location.href = "{{ route("payment.unfinish") }}";
+						window.location.href = "<?php echo e(route("payment.unfinish")); ?>";
 					} else {
-						window.location.href = "{{ route("payment.error") }}";
+						window.location.href = "<?php echo e(route("payment.error")); ?>";
 					}
 				}
 			});
 		</script>
-	@endpush
+	<?php $__env->stopPush(); ?>
 
-@endsection
+<?php $__env->stopSection(); ?>
+
+<?php echo $__env->make("frontend.layouts.app", \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?><?php /**PATH D:\Apps\laragon\www\commerce\resources\views/frontend/product/checkout.blade.php ENDPATH**/ ?>

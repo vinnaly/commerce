@@ -1,8 +1,6 @@
-@extends("frontend.layouts.app")
+<?php $__env->startSection("title", "My Account"); ?>
 
-@section("title", "My Account")
-
-@section("content")
+<?php $__env->startSection("content"); ?>
 	<section class="section-margin--small">
 		<div class="container">
 			<div class="row">
@@ -11,49 +9,50 @@
 				</div>
 				<div class="col-lg-12">
 
-					{{-- INFORMASI PROFIL --}}
+					
 					<div class="card p-4 mb-4">
 						<div class="row">
 							<div class="col-md-3 text-center">
 								<img alt="Profile Picture" class="rounded-circle mb-3" height="100"
-									src="{{ auth()->user()->profile_picture ? Storage::url(auth()->user()->profile_picture) : "https://via.placeholder.com/100" }}"
+									src="<?php echo e(auth()->user()->profile_picture ? Storage::url(auth()->user()->profile_picture) : "https://via.placeholder.com/100"); ?>"
 									width="100">
 
-								{{-- Upload & Delete --}}
-								<form action="{{ route("account.picture") }}" enctype="multipart/form-data" method="POST">
-									@csrf
+								
+								<form action="<?php echo e(route("account.picture")); ?>" enctype="multipart/form-data" method="POST">
+									<?php echo csrf_field(); ?>
 									<input class="form-control mb-2" name="profile_picture" type="file">
 									<button class="btn btn-outline-secondary btn-sm btn-block" type="submit">Upload Foto</button>
 								</form>
-								@if (auth()->user()->profile_picture)
-									<form action="{{ route("account.delete-picture") }}" method="POST">
-										@csrf @method("DELETE")
+								<?php if(auth()->user()->profile_picture): ?>
+									<form action="<?php echo e(route("account.delete-picture")); ?>" method="POST">
+										<?php echo csrf_field(); ?> <?php echo method_field("DELETE"); ?>
 										<button class="btn btn-sm btn-danger btn-block mt-2" type="submit">Hapus Foto</button>
 									</form>
-								@endif
+								<?php endif; ?>
 							</div>
 
 							<div class="col-md-9">
-								<form action="{{ route("account.update") }}" method="POST">
-									@csrf
+								<form action="<?php echo e(route("account.update")); ?>" method="POST">
+									<?php echo csrf_field(); ?>
 									<div class="form-group">
 										<label>Nama</label>
 										<input
-											{{ auth()->user()->updated_name_at && now()->diffInDays(auth()->user()->updated_name_at) < 30 ? "readonly" : "" }}
-											class="form-control" name="name" type="text" value="{{ auth()->user()->name }}">
-										@if (auth()->user()->updated_name_at && now()->diffInDays(auth()->user()->updated_name_at) < 30)
+											<?php echo e(auth()->user()->updated_name_at && now()->diffInDays(auth()->user()->updated_name_at) < 30 ? "readonly" : ""); ?>
+
+											class="form-control" name="name" type="text" value="<?php echo e(auth()->user()->name); ?>">
+										<?php if(auth()->user()->updated_name_at && now()->diffInDays(auth()->user()->updated_name_at) < 30): ?>
 											<small class="text-muted">Nama hanya bisa diubah sebulan sekali.</small>
-										@endif
+										<?php endif; ?>
 									</div>
 
 									<div class="form-group">
 										<label>Email</label>
-										<input class="form-control" name="email" type="email" value="{{ auth()->user()->email }}">
+										<input class="form-control" name="email" type="email" value="<?php echo e(auth()->user()->email); ?>">
 									</div>
 
 									<div class="form-group">
 										<label>No. HP</label>
-										<input class="form-control" name="phone" type="text" value="{{ auth()->user()->phone }}">
+										<input class="form-control" name="phone" type="text" value="<?php echo e(auth()->user()->phone); ?>">
 									</div>
 
 									<button class="btn btn-primary btn-sm" type="submit">Simpan Perubahan</button>
@@ -68,29 +67,30 @@
 								<div class="form-group mt-3">
 									<label>Alamat</label>
 									<div class="d-flex flex-wrap gap-2">
-										@foreach ($user->addresses as $address)
+										<?php $__currentLoopData = $user->addresses; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $address): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
 											<div class="d-flex mb-2 me-2">
-												<button class="mr-1 btn btn-outline-dark btn-sm" onclick="editAddress({{ $address->id }})" type="button">
-													{{ $address->label }}
+												<button class="mr-1 btn btn-outline-dark btn-sm" onclick="editAddress(<?php echo e($address->id); ?>)" type="button">
+													<?php echo e($address->label); ?>
+
 												</button>
-												<form action="{{ route("account.address.delete", $address->id) }}" class="ms-1" method="POST">
-													@csrf @method("DELETE")
+												<form action="<?php echo e(route("account.address.delete", $address->id)); ?>" class="ms-1" method="POST">
+													<?php echo csrf_field(); ?> <?php echo method_field("DELETE"); ?>
 													<button class="btn btn-outline-danger btn-sm" onclick="return confirm('Yakin ingin menghapus alamat ini?')"
 														type="submit">×</button>
 												</form>
 											</div>
-										@endforeach
+										<?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
 									</div>
 									<button class="btn btn-outline-dark btn-sm mt-2" onclick="addNewAddress()" type="button">Tambah Alamat</button>
-									@if (session("success"))
-										<p>{{ session("success") }}</p>
-									@endif
+									<?php if(session("success")): ?>
+										<p><?php echo e(session("success")); ?></p>
+									<?php endif; ?>
 								</div>
 							</div>
 						</div>
 					</div>
 
-					{{-- NAVIGASI TABS --}}
+					
 					<ul class="nav nav-tabs mb-3" id="accountTab" role="tablist">
 						<li class="nav-item">
 							<a class="nav-link active" data-toggle="tab" href="#pesanan" id="pesanan-tab" role="tab">Pesanan Saya</a>
@@ -103,71 +103,71 @@
 						</li>
 					</ul>
 
-					{{-- ISI TABS --}}
+					
 					<div class="tab-content" id="accountTabContent">
 
-						{{-- PESANAN SAYA --}}
+						
 						<div class="tab-pane fade show active" id="pesanan" role="tabpanel">
-							@if ($orders->where("status", "!=", "completed")->count())
-								@foreach ($orders->where("status", "!=", "completed") as $order)
+							<?php if($orders->where("status", "!=", "completed")->count()): ?>
+								<?php $__currentLoopData = $orders->where("status", "!=", "completed"); $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $order): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
 									<div class="card p-3 mb-2">
-										<strong>ID Pesanan: #{{ $order->id }}</strong>
-										<p>{{ $order->created_at->format("d M Y") }} • Total: Rp {{ number_format($order->total, 0, ",", ".") }}</p>
-										<p>Status: <span class="badge badge-warning">{{ ucfirst($order->payment_status) }}</span></p>
-										<form action="{{ route("account.orders.complete", $order->id) }}" method="POST"
+										<strong>ID Pesanan: #<?php echo e($order->id); ?></strong>
+										<p><?php echo e($order->created_at->format("d M Y")); ?> • Total: Rp <?php echo e(number_format($order->total, 0, ",", ".")); ?></p>
+										<p>Status: <span class="badge badge-warning"><?php echo e(ucfirst($order->payment_status)); ?></span></p>
+										<form action="<?php echo e(route("account.orders.complete", $order->id)); ?>" method="POST"
 											onsubmit="return confirm('Yakin pesanan ini sudah kamu terima?')">
-											@csrf
+											<?php echo csrf_field(); ?>
 											<button class="btn btn-sm btn-success" type="submit">Pesanan Selesai</button>
 										</form>
 									</div>
-								@endforeach
-							@else
+								<?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+							<?php else: ?>
 								<p class="text-muted">Tidak ada pesanan dalam proses.</p>
-							@endif
+							<?php endif; ?>
 						</div>
 
-						{{-- RIWAYAT PESANAN --}}
+						
 						<div class="tab-pane fade" id="riwayat" role="tabpanel">
-							@if ($orders->where("status", "completed")->count())
-								@foreach ($orders->where("status", "completed") as $order)
+							<?php if($orders->where("status", "completed")->count()): ?>
+								<?php $__currentLoopData = $orders->where("status", "completed"); $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $order): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
 									<div class="card p-3 mb-2">
-										<strong>ID Pesanan: #{{ $order->id }}</strong>
-										<p>{{ $order->created_at->format("d M Y") }} • Total: Rp {{ number_format($order->total, 0, ",", ".") }}</p>
+										<strong>ID Pesanan: #<?php echo e($order->id); ?></strong>
+										<p><?php echo e($order->created_at->format("d M Y")); ?> • Total: Rp <?php echo e(number_format($order->total, 0, ",", ".")); ?></p>
 										<div class="d-flex gap-2">
 											<a class="btn btn-sm btn-info"
-												href="{{ route("product.detail", $order->orderItems->first()->product->slug ?? "#") }}">Beli Lagi</a>
-											<button class="btn btn-sm btn-warning" data-target="#reviewModal{{ $order->id }}" data-toggle="modal">
+												href="<?php echo e(route("product.detail", $order->orderItems->first()->product->slug ?? "#")); ?>">Beli Lagi</a>
+											<button class="btn btn-sm btn-warning" data-target="#reviewModal<?php echo e($order->id); ?>" data-toggle="modal">
 												Beri Nilai
 											</button>
 										</div>
 									</div>
-									@include("frontend.account.review-modal", ["order" => $order])
-								@endforeach
-							@else
+									<?php echo $__env->make("frontend.account.review-modal", ["order" => $order], \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?>
+								<?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+							<?php else: ?>
 								<p class="text-muted">Belum ada riwayat pesanan.</p>
-							@endif
+							<?php endif; ?>
 						</div>
 
-						{{-- ULASAN SAYA --}}
+						
 						<div class="tab-pane fade" id="ulasan" role="tabpanel">
-							@if ($reviews->count())
-								@foreach ($reviews as $review)
+							<?php if($reviews->count()): ?>
+								<?php $__currentLoopData = $reviews; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $review): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
 									<div class="card p-3 mb-2">
-										<strong>{{ $review->product->name ?? "-" }}</strong>
-										<p class="mb-1">Rating: {{ $review->rating }} / 5</p>
-										<p>{{ $review->comment }}</p>
+										<strong><?php echo e($review->product->name ?? "-"); ?></strong>
+										<p class="mb-1">Rating: <?php echo e($review->rating); ?> / 5</p>
+										<p><?php echo e($review->comment); ?></p>
 									</div>
-								@endforeach
-							@else
+								<?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+							<?php else: ?>
 								<p class="text-muted">Belum ada ulasan yang Anda berikan.</p>
-							@endif
+							<?php endif; ?>
 						</div>
 					</div>
 
-					{{-- LOGOUT --}}
+					
 					<div class="text-center mt-4">
-						<form action="{{ route("logout") }}" id="logout-form" method="POST">
-							@csrf
+						<form action="<?php echo e(route("logout")); ?>" id="logout-form" method="POST">
+							<?php echo csrf_field(); ?>
 							<button class="btn btn-danger" type="submit">Log out</button>
 						</form>
 					</div>
@@ -177,12 +177,12 @@
 		</div>
 	</section>
 
-	{{-- MODAL GANTI PASSWORD --}}
+	
 	<div class="modal fade" id="gantiPasswordModal" tabindex="-1">
 		<div class="modal-dialog">
 			<div class="modal-content">
-				<form action="{{ route("account.password") }}" method="POST">
-					@csrf
+				<form action="<?php echo e(route("account.password")); ?>" method="POST">
+					<?php echo csrf_field(); ?>
 					<div class="modal-header">
 						<h5 class="modal-title">Ganti Password</h5>
 					</div>
@@ -201,7 +201,7 @@
 		</div>
 	</div>
 
-	{{-- MODAL TAMBAH/EDIT ALAMAT --}}
+	
 	<div class="modal fade" id="addressModal" tabindex="-1">
 		<div class="modal-dialog">
 			<div class="modal-content">
@@ -211,8 +211,8 @@
 						<span aria-hidden="true">&times;</span>
 					</button>
 				</div>
-				<form action="{{ route("account.address.add") }}" id="addressForm" method="POST">
-					@csrf
+				<form action="<?php echo e(route("account.address.add")); ?>" id="addressForm" method="POST">
+					<?php echo csrf_field(); ?>
 					<input id="addressMethod" name="_method" type="hidden" value="POST">
 					<input id="destination_name" name="destination_name" type="hidden">
 					<input id="province_name" name="province_name" type="hidden">
@@ -232,7 +232,7 @@
 									placeholder="Ketik nama kota/kabupaten..." type="text">
 								<div class="invalid-feedback">Pilih destinasi dari hasil pencarian</div>
 
-								{{-- Loading indicator --}}
+								
 								<div class="position-absolute" id="search_loading"
 									style="right: 10px; top: 50%; transform: translateY(-50%); display: none;">
 									<div class="spinner-border spinner-border-sm text-secondary" role="status">
@@ -241,11 +241,11 @@
 								</div>
 							</div>
 
-							{{-- Search results dropdown --}}
+							
 							<div class="list-group position-absolute w-100" id="destination_results"
 								style="z-index: 1000; max-height: 200px; overflow-y: auto; display: none;"></div>
 
-							{{-- Selected destination display --}}
+							
 							<div class="mt-2" id="selected_destination" style="display: none;">
 								<small class="text-muted">Destinasi dipilih:</small>
 								<div class="alert alert-info py-2 mb-0">
@@ -282,7 +282,7 @@
 		</div>
 	</div>
 
-	@push("scripts")
+	<?php $__env->startPush("scripts"); ?>
 		<script>
 			document.addEventListener('DOMContentLoaded', function() {
 				const destinationSearch = document.getElementById('destination_search');
@@ -516,7 +516,7 @@
 					clearDestinationSelection();
 
 					// Reset form action and method
-					addressForm.action = "{{ route("account.address.add") }}";
+					addressForm.action = "<?php echo e(route("account.address.add")); ?>";
 					addressMethod.value = 'POST';
 
 					addressModalLabel.textContent = 'Tambah Alamat Baru';
@@ -568,6 +568,8 @@
 				};
 			});
 		</script>
-	@endpush
+	<?php $__env->stopPush(); ?>
 
-@endsection
+<?php $__env->stopSection(); ?>
+
+<?php echo $__env->make("frontend.layouts.app", \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?><?php /**PATH D:\Apps\laragon\www\commerce\resources\views/frontend/account/index.blade.php ENDPATH**/ ?>

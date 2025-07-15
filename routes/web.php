@@ -83,7 +83,7 @@ Route::get('/checkout', [CheckoutController::class, 'show'])->name('checkout.sho
 Route::post('/checkout/process', [CheckoutController::class, 'process'])->name('checkout.process');
 // Midtrans
 // ✅ CALLBACK dari Midtrans ke server kamu (wajib POST)
-Route::post('/midtrans/callback', [CheckoutController::class, 'midtransCallback'])->name('midtrans.callback');
+// Route::post('/midtrans/callback', [CheckoutController::class, 'midtransCallback'])->name('midtrans.callback');
 // ✅ Redirect setelah pembayaran (Snap redirect)
 Route::get('/payment/finish', [CheckoutController::class, 'paymentFinish'])->name('payment.finish');
 Route::get('/payment/unfinish', [CheckoutController::class, 'paymentUnfinish'])->name('payment.unfinish');

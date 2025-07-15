@@ -115,7 +115,7 @@ class AccountController extends Controller
     // ===================== ADDRESS =====================
     public function addAddress(Request $request)
     {
-        dd($request->all());
+        // dd($request->all());
 
         $validated = $request->validate([
             'label' => 'required|string|max:100',
@@ -243,11 +243,13 @@ class AccountController extends Controller
 
     public function markOrderAsCompleted(Order $order)
     {
+        // dd($order);
+        
         if ($order->user_id !== auth()->id()) {
             abort(403, 'Unauthorized');
         }
 
-        if (!in_array($order->status, ['paid', 'processing'])) {
+        if (in_array($order->status, ['paid', 'processing'])) {
             return back()->with('error', 'Pesanan tidak bisa ditandai sebagai selesai.');
         }
 
