@@ -4,9 +4,7 @@ namespace App\Http\Controllers\Frontend;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use App\Models\Cart;
 use App\Models\Order;
-use App\Models\OrderItem;
 use Midtrans\Config;
 use Midtrans\Snap;
 use Illuminate\Support\Facades\Log;
@@ -37,8 +35,6 @@ class CheckoutController extends Controller
 
     public function process(Request $request)
     {
-        // dd($request->all());
-
         $request->validate([
             'address_id' => 'required|exists:addresses,id',
             'shipping_method' => 'required|string',
@@ -92,7 +88,7 @@ class CheckoutController extends Controller
 
         if ($request->payment_method === 'midtrans') {
             try {
-                Config::$serverKey = config('services.midtrans.server_key');
+                Config::$serverKey = 'SB-Mid-server-_vleAZY18wTFP9nf9SYYj0Vr';
                 Config::$isProduction = config('services.midtrans.is_production');
                 Config::$isSanitized = true;
                 Config::$is3ds = true;
@@ -121,6 +117,11 @@ class CheckoutController extends Controller
                             'name' => $item->product->name,
                         ];
                     })->toArray(),
+                    'callbacks' => [
+                        'finish' => route('payment.finish'),
+                        'unfinish' => route('payment.unfinish'),
+                        'error' => route('payment.error'),
+                    ]
                 ];
 
                 $params['item_details'][] = [
@@ -132,8 +133,6 @@ class CheckoutController extends Controller
 
                 $snap = Snap::createTransaction($params);
                 $paymentUrl = $snap->redirect_url;
-
-                // dd($paymentUrl);
 
                 $order->update([
                     'snap_token' => $snap->token,
@@ -152,29 +151,46 @@ class CheckoutController extends Controller
 
     public function midtransCallback(Request $request)
     {
-        $notif = new \Midtrans\Notification();
+        try {
+            $serverKey = 'SB-Mid-server-_vleAZY18wTFP9nf9SYYj0Vr';
 
-        $transaction = $notif->transaction_status;
-        $orderIdRaw = $notif->order_id;
-        $orderId = explode('-', $orderIdRaw)[0];
-        $order = Order::find($orderId);
+            $hashed = hash('sha512', $request->order_id . $request->status_code . $request->gross_amount . $serverKey);
 
-        dd($order);
+            if ($hashed == $request->signature_key) {
+                $order = Order::where('midtrans_order_id', $request->order_id)->first();
 
-        if (!$order) {
-            Log::error('Order not found for Midtrans callback: ' . $orderId);
-            return response()->json(['message' => 'Order not found'], 404);
+                if (!$order) {
+                    Log::error('Order not found for Midtrans callback: ' . $request->order_id);
+                    return response()->json(['message' => 'Order not found'], 404);
+                }
+
+                if ($request->transaction_status == 'settlement' || $request->transaction_status == 'capture') {
+                    $order->update([
+                        'status' => 'paid',
+                        'payment_status' => 'paid'
+                    ]);
+                } elseif ($request->transaction_status == 'pending') {
+                    $order->update([
+                        'status' => 'pending',
+                        'payment_status' => 'pending'
+                    ]);
+                } elseif (in_array($request->transaction_status, ['deny', 'expire', 'cancel'])) {
+                    $order->update([
+                        'status' => 'cancelled',
+                        'payment_status' => 'failed'
+                    ]);
+                }
+
+                Log::info('Midtrans callback processed successfully for order: ' . $request->order_id);
+                return response()->json(['message' => 'Callback processed successfully'], 200);
+            } else {
+                Log::error('Invalid signature for Midtrans callback');
+                return response()->json(['message' => 'Invalid signature'], 400);
+            }
+        } catch (\Exception $e) {
+            Log::error('Midtrans callback error: ' . $e->getMessage());
+            return response()->json(['message' => 'Callback error'], 500);
         }
-
-        if ($transaction == 'capture' || $transaction == 'settlement') {
-            $order->update(['payment_status' => 'paid', 'status' => 'paid']);
-        } elseif ($transaction == 'pending') {
-            $order->update(['payment_status' => 'pending']);
-        } elseif (in_array($transaction, ['deny', 'expire', 'cancel'])) {
-            $order->update(['payment_status' => 'failed', 'status' => 'cancelled']);
-        }
-
-        return response()->json(['message' => 'Callback received'], 200);
     }
 
     public function redirectToMidtrans(Order $order)
@@ -190,18 +206,48 @@ class CheckoutController extends Controller
         return redirect($order->payment_url);
     }
 
-    public function paymentFinish()
+    public function paymentFinish(Request $request)
     {
-        return redirect()->route('home')->with('success', 'Pembayaran berhasil! Pesanan Anda sedang diproses.');
+        $orderId = $request->query('order_id');
+
+        if ($orderId) {
+            $order = Order::where('midtrans_order_id', $orderId)->first();
+
+            if ($order) {
+                if ($order->status === 'pending') {
+                    $order->update([
+                        'status' => 'paid',
+                        'payment_status' => 'paid'
+                    ]);
+                }
+            }
+        }
+
+        return redirect()->route('account.index')->with('success', 'Pembayaran berhasil! Pesanan Anda sedang diproses.');
     }
 
-    public function paymentUnfinish()
+    public function paymentUnfinish(Request $request)
     {
-        return redirect()->route('home')->with('info', 'Pembayaran belum selesai. Silahkan selesaikan pembayaran Anda.');
+        $orderId = $request->query('order_id');
+
+        return redirect()->route('account.index')->with('info', 'Pembayaran belum selesai. Silahkan selesaikan pembayaran Anda.');
     }
 
-    public function paymentError()
+    public function paymentError(Request $request)
     {
-        return redirect()->route('home')->with('error', 'Pembayaran gagal. Silahkan coba lagi atau hubungi customer service.');
+        $orderId = $request->query('order_id');
+
+        if ($orderId) {
+            $order = Order::where('midtrans_order_id', $orderId)->first();
+
+            if ($order && $order->status === 'pending') {
+                $order->update([
+                    'status' => 'cancelled',
+                    'payment_status' => 'failed'
+                ]);
+            }
+        }
+
+        return redirect()->route('account.index')->with('error', 'Pembayaran gagal. Silahkan coba lagi atau hubungi customer service.');
     }
 }

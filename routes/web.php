@@ -38,7 +38,7 @@ Route::middleware('auth')->prefix('account')->name('account.')->group(function (
     Route::post('/address/add', [AccountController::class, 'addAddress'])->name('address.add');
     Route::put('/address/{id}', [AccountController::class, 'updateAddress'])->name('address.update');
     Route::delete('/address/{id}', [AccountController::class, 'deleteAddress'])->name('address.delete');
-    Route::get('/account/address/{id}/data', [AccountController::class, 'getAddressData'])->name('account.address.data');
+    Route::get('/account/address/{id}/data', [AccountController::class, 'getAddressData'])->name('address.data');
 
     // Orders
     Route::get('/orders', [AccountController::class, 'ordersInProgress'])->name('orders');
@@ -81,14 +81,11 @@ Route::middleware('auth')->group(function() {
 // Checkout Routes
 Route::get('/checkout', [CheckoutController::class, 'show'])->name('checkout.show');
 Route::post('/checkout/process', [CheckoutController::class, 'process'])->name('checkout.process');
+
 // Midtrans
-// ✅ CALLBACK dari Midtrans ke server kamu (wajib POST)
-// Route::post('/midtrans/callback', [CheckoutController::class, 'midtransCallback'])->name('midtrans.callback');
-// ✅ Redirect setelah pembayaran (Snap redirect)
 Route::get('/payment/finish', [CheckoutController::class, 'paymentFinish'])->name('payment.finish');
 Route::get('/payment/unfinish', [CheckoutController::class, 'paymentUnfinish'])->name('payment.unfinish');
 Route::get('/payment/error', [CheckoutController::class, 'paymentError'])->name('payment.error');
-// ✅ Jika user klik "Bayar Sekarang" ulang dari halaman riwayat pesanan
 Route::post('/midtrans/pay/{order}', [CheckoutController::class, 'redirectToMidtrans'])->name('midtrans.redirect');
 Route::post('/midtrans/pay/{order}', [CheckoutController::class, 'redirectToMidtrans'])->name('midtrans.redirect');
 
