@@ -88,7 +88,7 @@ class CheckoutController extends Controller
 
         if ($request->payment_method === 'midtrans') {
             try {
-                Config::$serverKey = 'SB-Mid-server-_vleAZY18wTFP9nf9SYYj0Vr';
+                Config::$serverKey = config('services.midtrans.server_key');
                 Config::$isProduction = config('services.midtrans.is_production');
                 Config::$isSanitized = true;
                 Config::$is3ds = true;
@@ -152,7 +152,7 @@ class CheckoutController extends Controller
     public function midtransCallback(Request $request)
     {
         try {
-            $serverKey = 'SB-Mid-server-_vleAZY18wTFP9nf9SYYj0Vr';
+            $serverKey = config('services.midtrans.server_key');
 
             $hashed = hash('sha512', $request->order_id . $request->status_code . $request->gross_amount . $serverKey);
 
