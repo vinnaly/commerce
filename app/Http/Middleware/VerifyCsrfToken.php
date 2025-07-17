@@ -13,6 +13,8 @@ class VerifyCsrfToken extends Middleware
      */
     protected $except = [
     'midtrans/callback'
+    // 'ngrok.io',
+    // 'ngrok-free.app'
 ];
 
     

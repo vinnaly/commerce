@@ -217,49 +217,48 @@ class AccountController extends Controller
             'province_id' => null
         ];
     }
+// ===================== ORDERS =====================
+public function ordersInProgress()
+{
+    $orders = auth()->user()->orders()
+        ->where('status', 'paid')
+        ->latest()
+        ->with('orderItems.product')
+        ->get();
 
-    // ===================== ORDERS =====================
-    public function ordersInProgress()
-    {
-        $orders = auth()->user()->orders()
-            ->where('status', 'paid')
-            ->latest()
-            ->with('orderItems.product')
-            ->get();
+    return view('frontend.account.order', compact('orders'));
+}
 
-        return view('frontend.account.order', compact('orders'));
+public function orderHistory()
+{
+    $orders = Order::with('orderItems.product')
+        ->where('user_id', auth()->id())
+        ->where('status', 'completed')
+        ->latest()
+        ->get();
+
+    return view('frontend.account.history', compact('orders'));
+}
+
+public function markOrderAsCompleted(Order $order)
+{
+    // Pastikan user hanya bisa mengubah pesanan miliknya
+    if ($order->user_id !== auth()->id()) {
+        abort(403, 'Unauthorized');
     }
 
-    public function orderHistory()
-    {
-        $orders = Order::with('orderItems.product')
-            ->where('user_id', auth()->id())
-            ->where('status', 'completed')
-            ->latest()
-            ->get();
-
-        return view('frontend.account.history', compact('orders'));
+    // Hanya pesanan berstatus paid yang bisa diselesaikan
+    if ($order->status !== 'paid') {
+        return back()->with('error', 'Hanya pesanan yang sudah dibayar yang bisa ditandai selesai.');
     }
 
-    public function markOrderAsCompleted(Order $order)
-    {
-        // dd($order);
-        
-        if ($order->user_id !== auth()->id()) {
-            abort(403, 'Unauthorized');
-        }
+    $order->update([
+        'status' => 'completed',
+        'payment_status' => 'paid', // opsional, tergantung skema kamu
+    ]);
 
-        if (in_array($order->status, ['paid', 'processing'])) {
-            return back()->with('error', 'Pesanan tidak bisa ditandai sebagai selesai.');
-        }
-
-        $order->update([
-            'status' => 'completed',
-            'payment_status' => 'paid',
-        ]);
-
-        return back()->with('success', 'Pesanan telah ditandai sebagai selesai.');
-    }
+    return back()->with('success', 'Pesanan telah ditandai sebagai selesai.');
+}
 
     // ===================== REVIEWS =====================
     public function reviewForm(Order $order)

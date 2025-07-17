@@ -14,11 +14,11 @@ class MonthlyRevenue extends BaseWidget
         $month = Carbon::now()->month;
         $year = Carbon::now()->year;
 
-        // Hitung pendapatan dari order 'paid' pada bulan ini
-        $totalRevenue = Order::where('status', 'paid')
-            ->whereMonth('created_at', $month)
-            ->whereYear('created_at', $year)
-            ->sum('total');
+        // Hitung pendapatan dari order 'paid' dan 'completed' pada bulan ini
+        $totalRevenue = Order::whereIn('status', ['paid', 'completed'])
+    ->whereMonth('created_at', $month)
+    ->whereYear('created_at', $year)
+    ->sum('total');
 
         return [
             Card::make('Pendapatan Bulan Ini', 'Rp ' . number_format($totalRevenue, 0, ',', '.'))

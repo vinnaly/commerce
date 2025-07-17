@@ -15,14 +15,32 @@ use App\Http\Controllers\Auth\RegisteredUserController;
 |--------------------------------------------------------------------------
 */
 
-// HOME
+// Halaman Beranda
 Route::get('/', [HomeController::class, 'index'])->name('home');
-Route::get('/register', [RegisteredUserController::class, 'create'])
-            ->middleware('guest')
-            ->name('register');
 
+// Form Registrasi
+Route::get('/register', [RegisteredUserController::class, 'create'])
+    ->middleware('guest')
+    ->name('register');
+
+// Proses Registrasi (otomatis beri role 'user', redirect ke login)
 Route::post('/register', [RegisteredUserController::class, 'store'])
-            ->middleware('guest');
+    ->middleware('guest');
+
+// Redirect setelah login (tergantung role)
+Route::middleware('auth')->get('/redirect', function () {
+    if (auth()->user()->hasRole('admin')) {
+        return redirect('/admin'); // Ganti sesuai route admin Filament
+    }
+
+    return redirect()->route('account.index'); // User biasa diarahkan ke dashboard
+})->name('redirect');
+
+// Dashboard user biasa (hanya bisa diakses oleh role:user)
+Route::middleware(['auth', 'role:user'])->prefix('account')->name('account.')->group(function () {
+    Route::get('/', [AccountController::class, 'index'])->name('index');
+});
+
 
 Route::middleware('auth')->prefix('account')->name('account.')->group(function () {
     // Dashboard

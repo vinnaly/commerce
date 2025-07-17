@@ -132,19 +132,7 @@
 
             {{-- Reviews Tab --}}
             <div class="tab-pane fade" id="review" role="tabpanel" aria-labelledby="review-tab">
-                {{-- Dummy Reviews bisa kamu ganti nanti --}}
-                <div class="row mt-4">
-                    <div class="col-md-6">
-                        <div class="review_item">
-                            <h4>Blake Ruiz</h4>
-                            <div>
-                                <i class="fa fa-star"></i><i class="fa fa-star"></i>
-                                <i class="fa fa-star"></i><i class="fa fa-star"></i>
-                                <i class="fa fa-star"></i>
-                            </div>
-                            <p>Produk ini sangat berkualitas. Saya suka!</p>
-                        </div>
-                    </div>
+                
                     <div class="product_reviews mt-5">
   <h4>Ulasan Produk</h4>
   @forelse($product->reviews as $review)
@@ -157,7 +145,7 @@
   @endforelse
 </div>
 
-                    <div class="col-md-6">
+                    <!-- <div class="col-md-6">
                         <form class="form-review">
                             <div class="form-group">
                                 <input type="text" class="form-control" name="name" placeholder="Your Name">
@@ -172,7 +160,7 @@
                                 <button type="submit" class="btn btn-primary">Submit Review</button>
                             </div>
                         </form>
-                    </div>
+                    </div> -->
                 </div>
             </div>
         </div>
