@@ -93,7 +93,8 @@ class AccountController extends Controller
         }
 
         $filename = $request->file('profile_picture')->store('profile', 'public');
-        $user->profile_picture = basename($filename);
+        $user->profile_picture = $filename; // Simpan path lengkap
+
         $user->save();
 
         return back()->with('success', 'Foto profil berhasil diunggah.');

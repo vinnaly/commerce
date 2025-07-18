@@ -3,118 +3,63 @@
 namespace App\Http\Controllers\Api;
 
 use Illuminate\Support\Facades\Http;
-use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Cache;
 
 class RajaOngkirService
 {
-    protected $apiKey;
     protected $baseUrl;
-    protected $origin;
+    protected $apiKey;
+    protected $timeout;
 
     public function __construct()
     {
-        $this->apiKey = config('services.rajaongkir.key');
-        $this->baseUrl = config('services.rajaongkir.url', 'https://rajaongkir.komerce.id/api/v1');
-        $this->origin = config('services.rajaongkir.origin_city');
+        $this->baseUrl = config('rajaongkir.url'); // atau env('RAJAONGKIR_URL')
+        $this->apiKey = config('rajaongkir.api_key'); // atau env('RAJAONGKIR_API_KEY')
+        $this->timeout = config('rajaongkir.timeout', 30); // atau env('RAJAONGKIR_TIMEOUT', 30)
     }
 
-    /**
-     * Mencari destinasi berdasarkan kata kunci
-     *
-     * @param string $search
-     * @param int $limit
-     * @param int $offset
-     * @return array
-     */
-    public function searchDestination(string $search, int $limit = 0, int $offset = 0): array
+    public function searchDestination(string $search)
     {
-        $cacheKey = 'rajaongkir_search_' . md5($search) . '_' . $limit . '_' . $offset;
+        $response = Http::withHeaders([
+            'x-api-key' => $this->apiKey,
+            'Accept' => 'application/json',
+            'Content-Type' => 'application/json'
+        ])->timeout($this->timeout)->get('https://api-sandbox.collaborator.komerce.id/tariff/api/v1/destination/search', [
+            'keyword' => $search,
+        ]);
 
-        return Cache::remember($cacheKey, 1800, function () use ($search, $limit, $offset) {
-            try {
-                Log::info('RajaOngkir API Request', [
-                    'url' => $this->baseUrl . '/destination/domestic-destination',
-                    'params' => [
-                        'search' => $search,
-                        'limit' => $limit,
-                        'offset' => $offset
-                    ]
-                ]);
-
-                $response = Http::withHeaders([
-                    'key' => $this->apiKey
-                ])->get($this->baseUrl . '/destination/domestic-destination', [
-                    'search' => $search,
-                    'limit' => $limit,
-                    'offset' => $offset
-                ]);
-
-                if ($response->successful()) {
-                    $data = $response->json();
-
-                    Log::info('RajaOngkir API Response', [
-                        'status' => $response->status(),
-                        'has_data' => isset($data['data']),
-                        'data_count' => isset($data['data']) ? count($data['data']) : 0
-                    ]);
-
-                    if (isset($data['data']) && is_array($data['data'])) {
-                        return $data['data'];
-                    }
-
-                    return $data['results'] ?? $data ?? [];
-                }
-
-                Log::error('RajaOngkir API Error', [
-                    'status' => $response->status(),
-                    'body' => $response->body()
-                ]);
-
-                return [];
-            } catch (\Exception $e) {
-                Log::error('RajaOngkir searchDestination Exception', [
-                    'message' => $e->getMessage(),
-                    'trace' => $e->getTraceAsString()
-                ]);
-
-                return [];
-            }
-        });
+        if ($response->successful()) {
+            $data = $response->json();
+            return $data['data'];
+        }
     }
 
-    public function getDestinationDetail(string $destinationId): ?array
+    // Method untuk testing koneksi API
+    public function testConnection()
     {
-        $cacheKey = 'rajaongkir_destination_' . $destinationId;
+        try {
+            $response = Http::withHeaders([
+                'x-api-key' => $this->apiKey,
+                'Accept' => 'application/json'
+            ])->timeout($this->timeout)->get($this->baseUrl . '/destination/search', [
+                'keyword' => 'jakarta'
+            ]);
 
-        return Cache::remember($cacheKey, 86400, function () use ($destinationId) {
-            try {
-                $response = Http::withHeaders([
-                    'key' => $this->apiKey
-                ])->get($this->baseUrl . '/destination/domestic-destination/' . $destinationId);
-
-                if ($response->successful()) {
-                    $data = $response->json();
-                    return $data['data'] ?? $data ?? null;
-                }
-
-                Log::error('RajaOngkir getDestinationDetail Error', [
-                    'destination_id' => $destinationId,
-                    'status' => $response->status(),
-                    'body' => $response->body()
-                ]);
-
-                return null;
-            } catch (\Exception $e) {
-                Log::error('RajaOngkir getDestinationDetail Exception', [
-                    'destination_id' => $destinationId,
-                    'message' => $e->getMessage()
-                ]);
-
-                return null;
-            }
-        });
+            return [
+                'success' => $response->successful(),
+                'status' => $response->status(),
+                'data' => $response->json(),
+                'headers' => $response->headers()
+            ];
+        } catch (\Exception $e) {
+            return [
+                'success' => false,
+                'error' => $e->getMessage()
+            ];
+        }
     }
+
 
     public function getCost(string $destination, int $weight, string $courier): array
     {

@@ -757,6 +757,10 @@ a {
 .card-product__img {
     position: relative;
 }
+.card-product__img img{
+    height: 300px; 
+}
+
 .card-product__imgOverlay {
     background: rgba(255, 255, 255, 0.5);
     position: absolute;

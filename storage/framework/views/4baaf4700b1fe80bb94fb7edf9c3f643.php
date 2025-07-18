@@ -391,5 +391,4 @@ unset($__errorArgs, $__bag); ?>
 	<?php $__env->stopPush(); ?>
 
 <?php $__env->stopSection(); ?>
-
 <?php echo $__env->make("frontend.layouts.app", \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?><?php /**PATH C:\laragon\www\Tutik_TSH\resources\views/frontend/product/checkout.blade.php ENDPATH**/ ?>

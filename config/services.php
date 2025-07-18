@@ -32,9 +32,8 @@ return [
     ],
 
     'rajaongkir' => [
-        'key' => env('RAJAONGKIR_API_KEY', 'DvmJTrc7c13bbcb65a9e2f6bjtQOoFfZ'),
-        'url' => env('RAJAONGKIR_URL', 'https://rajaongkir.komerce.id/api/v1'),
-        'origin_city' => env('RAJAONGKIR_ORIGIN_CITY', 501),
+        'key' => env('RAJAONGKIR_API_KEY'),
+        'url' => env('RAJAONGKIR_URL'),
         'timeout' => env('RAJAONGKIR_TIMEOUT', 30),
     ],
 

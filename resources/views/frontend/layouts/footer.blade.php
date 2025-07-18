@@ -6,21 +6,19 @@
             <div class="col-lg-3 col-md-6 col-sm-6">
               <div class="single-footer-widget tp_widgets">
                 <h4 class="footer_title large_title">Our Mission</h4>
-                <p>So seed seed green that winged cattle in. Gathering thing made fly you're no divided deep moved us lan Gathering thing us land years living.</p>
-                <p>So seed seed green that winged cattle in. Gathering thing made fly you're no divided deep moved</p>
+                  <p>Kami berkomitmen untuk menyediakan produk berkualitas tinggi yang dapat dipercaya oleh pelanggan</p>
+                  <p>Kami percaya bahwa kepuasan pelanggan adalah prioritas utama</p>
               </div>
             </div>
             <div class="offset-lg-1 col-lg-2 col-md-6 col-sm-6">
               <div class="single-footer-widget tp_widgets">
                 <h4 class="footer_title">Quick Links</h4>
                 <ul class="list">
-                  <li><a href="#">Home</a></li>
-                  <li><a href="#">Shop</a></li>
-                  <li><a href="#">Blog</a></li>
-                  <li><a href="#">Product</a></li>
-                  <li><a href="#">Brand</a></li>
-                  <li><a href="#">Contact</a></li>
-                </ul>
+                <li><a href="{{ route('home') }}">Home</a></li>
+                <li><a href="{{ route('product.collection') }}">All Collection</a></li>
+                <li><a href="{{ auth()->check() ? route('account.index') : route('login') }}">Account</a></li>
+                <li><a href="{{ auth()->check() ? route('cart.index') : route('login') }}">Cart</a></li>
+              </ul>
               </div>
             </div>
             <div class="offset-lg-1 col-lg-3 col-md-6 col-sm-6">
@@ -29,17 +27,16 @@
                 <div class="ml-40">
                   <p class="sm-head">
                     <span class="fa fa-location-arrow"></span>
-                    Head Office
+                   Alamat Kami
                   </p>
-                  <p>123, Main Street, Your City</p>
+                  <p>Jln.raya santong kec.kayangan, kab.lombok utara</p>
 
                   <p class="sm-head">
                     <span class="fa fa-phone"></span>
-                    Phone Number
+                   Hubungi Kami
                   </p>
                   <p>
                     +123 456 7890 <br />
-                    +123 456 7890
                   </p>
 
                   <p class="sm-head">
@@ -47,8 +44,7 @@
                     Email
                   </p>
                   <p>
-                    free@infoexample.com <br />
-                    www.infoexample.com
+                    tutiktsh@gmail.com <br />
                   </p>
                 </div>
               </div>

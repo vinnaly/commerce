@@ -14,10 +14,9 @@
             </div>
             <div class="col-sm-7 col-lg-6 offset-lg-1 pl-4 pl-md-5 pl-lg-0">
               <div class="hero-banner__content">
-                <h4>Shop is fun</h4>
-                <h1>Browse Our Premium Product</h1>
-                <p>Us which over of signs divide dominion deep fill bring they're meat beho upon own earth without morning over third. Their male dry. They are great appear whose land fly grass.</p>
-               
+                <h4>Belanja Itu Menyenangkan</h4>
+                <h1>Temukan Produk Premium Pilihan Kami  </h1>
+                <p>Kami menghadirkan berbagai produk unggulan dengan kualitas terbaik untuk memenuhi kebutuhan Anda. Belanja lebih mudah, aman, dan menyenangkan hanya di toko kami</p>
               </div>
             </div>
           </div>
@@ -26,7 +25,7 @@
       <!--================ Hero banner start =================-->
 
       <!--================ Hero Carousel start =================-->
-      <section class="section-margin mt-0">
+      <!-- <section class="section-margin mt-0">
         <div class="owl-carousel owl-theme hero-carousel">
           <div class="hero-carousel__slide">
             <img src="/assets/img/home/hero-slide1.png" alt="" class="img-fluid" />
@@ -50,11 +49,78 @@
             </a>
           </div>
         </div>
-      </section>
+      </section> -->
+      <!-- ================ About Us section start ================= -->
+<section class="section-margin bg-light py-5">
+  <div class="container">
+    <div class="section-intro pb-4 text-center">
+      <p>Learn More About Us</p>
+      <h2 class="section-intro__style">Tentang <span class="text-primary">Kami</span></h2>
+    </div>
+    <div class="row align-items-center">
+      <div class="col-lg-6">
+        <h3 class="mb-3">Kami Hadir untuk Memberikan Produk Terbaik</h3>
+        <p class="mb-4">
+          Kami adalah tim yang berdedikasi untuk menyediakan produk-produk berkualitas tinggi dengan harga yang bersaing. Misi kami adalah memberikan pengalaman belanja online yang mudah, aman, dan menyenangkan bagi seluruh pelanggan.
+        </p>
+        <ul class="list-unstyled mb-4">
+          <li class="mb-2"><i class="ti-check text-success pr-2"></i> Produk asli dan terpercaya</li>
+          <li class="mb-2"><i class="ti-check text-success pr-2"></i> Layanan pelanggan responsif</li>
+          <li class="mb-2"><i class="ti-check text-success pr-2"></i> Pengiriman cepat dan aman</li>
+        </ul>
+      </div>
+        <div class="col-lg-6 mb-4 mb-lg-0">
+        <img class="img-fluid rounded shadow" src="/assets/img/home/hero-banner.png" alt="Tentang Kami">
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- related product -->
+ <!-- ================ Produk Unggulan section start ================= -->
+<section class="section-margin">
+  <div class="container">
+    <div class="section-intro pb-60px text-center">
+      <p>Produk Pilihan</p>
+      <h2>Produk <span class="section-intro__style">Unggulan</span></h2>
+    </div>
+    <div class="row">
+      @foreach($relatedProducts as $product)
+        <div class="col-md-6 col-lg-4">
+          <div class="card text-center card-product">
+            <div class="card-product__img">
+              <img class="card-img" src="{{ asset('storage/' . $product->image) }}" alt="{{ $product->name }}" />
+              <ul class="card-product__imgOverlay">
+                <form action="{{ route('cart.add') }}" method="POST">
+                  @csrf
+                  <input type="hidden" name="product_id" value="{{ $product->id }}">
+                  <input type="hidden" name="quantity" value="1">
+                  <button type="submit"><i class="ti-shopping-cart"></i></button>
+                </form>
+              </ul>
+            </div>
+            <div class="card-body">
+              <h4 class="card-product__title">
+                <a href="{{ route('product.detail', $product->slug) }}">{{ $product->name }}</a>
+              </h4>
+              <p class="card-product__price">Rp {{ number_format($product->price, 0, ',', '.') }}</p>
+              <span class="text-green-600 font-medium">Tersedia {{ $product->stock }}</span>
+            </div>
+          </div>
+        </div>
+      @endforeach
+    </div>
+  </div>
+</section>
+<!-- ================ Produk Unggulan section end ================= -->
+
+ <!-- end related product -->
+<!-- ================ About Us section end ================= -->
+
       <!--================ Hero Carousel end =================-->
 
       <!-- ================ trending product section start ================= -->
-      <section class="section-margin calc-60px">
+      <!-- <section class="section-margin calc-60px">
         <div class="container">
           <div class="section-intro pb-60px">
             <p>Popular Item in the market</p>
@@ -247,7 +313,7 @@
             </div>
           </div>
         </div>
-      </section>
+      </section> -->
       <!-- ================ trending product section end ================= -->
     </main>
 @endsection

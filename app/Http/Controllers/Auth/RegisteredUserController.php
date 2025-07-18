@@ -44,7 +44,7 @@ class RegisteredUserController extends Controller
 
         // event(new Registered($user));
 
-        $user->assignRole('user'); // beri role secara otomatis
+        // $user->assignRole('user'); // beri role secara otomatis
 // arahkan ke login, tidak auto-login
         return redirect()->route('login')->with('status', 'Akun berhasil dibuat. Silakan login.');
     }

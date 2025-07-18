@@ -11,26 +11,19 @@ class RajaOngkirController extends Controller
     public function searchDestination(Request $request, RajaOngkirService $rajaOngkir)
     {
         $request->validate([
-            'search' => 'required|string|min:2|max:100',
-            'limit' => 'nullable|integer|min:1|max:50',
-            'offset' => 'nullable|integer|min:0'
+            'keyword' => 'required|string|min:2|max:100',
         ]);
 
-        $search = $request->input('search');
-        $limit = $request->input('limit', 10);
-        $offset = $request->input('offset', 0);
+        $search = $request->input('keyword');
 
         try {
-            $destinations = $rajaOngkir->searchDestination($search, $limit, $offset);
+            $destinations = $rajaOngkir->searchDestination($search);
 
             return response()->json([
                 'success' => true,
                 'data' => $destinations,
                 'meta' => [
                     'search' => $search,
-                    'limit' => $limit,
-                    'offset' => $offset,
-                    'count' => count($destinations)
                 ]
             ]);
         } catch (\Exception $e) {
@@ -42,30 +35,30 @@ class RajaOngkirController extends Controller
         }
     }
 
-    public function getDestinationDetail($id, RajaOngkirService $rajaOngkir)
-    {
-        try {
-            $destination = $rajaOngkir->getDestinationDetail($id);
+    // public function getDestinationDetail($id, RajaOngkirService $rajaOngkir)
+    // {
+    //     try {
+    //         $destination = $rajaOngkir->getDestinationDetail($id);
 
-            if (!$destination) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Destinasi tidak ditemukan'
-                ], 404);
-            }
+    //         if (!$destination) {
+    //             return response()->json([
+    //                 'success' => false,
+    //                 'message' => 'Destinasi tidak ditemukan'
+    //             ], 404);
+    //         }
 
-            return response()->json([
-                'success' => true,
-                'data' => $destination
-            ]);
-        } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Gagal mengambil detail destinasi',
-                'error' => $e->getMessage()
-            ], 500);
-        }
-    }
+    //         return response()->json([
+    //             'success' => true,
+    //             'data' => $destination
+    //         ]);
+    //     } catch (\Exception $e) {
+    //         return response()->json([
+    //             'success' => false,
+    //             'message' => 'Gagal mengambil detail destinasi',
+    //             'error' => $e->getMessage()
+    //         ], 500);
+    //     }
+    // }
 
     public function cost(Request $request, RajaOngkirService $rajaOngkir)
     {
@@ -103,21 +96,5 @@ class RajaOngkirController extends Controller
                 'error' => $e->getMessage()
             ], 500);
         }
-    }
-
-    public function provinces(RajaOngkirService $rajaOngkir)
-    {
-        return response()->json([
-            'success' => false,
-            'message' => 'Endpoint ini sudah tidak didukung. Gunakan /api/destinations/search sebagai gantinya.'
-        ], 410);
-    }
-
-    public function cities(Request $request, RajaOngkirService $rajaOngkir)
-    {
-        return response()->json([
-            'success' => false,
-            'message' => 'Endpoint ini sudah tidak didukung. Gunakan /api/destinations/search sebagai gantinya.'
-        ], 410);
     }
 }

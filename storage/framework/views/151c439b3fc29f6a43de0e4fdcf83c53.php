@@ -3,7 +3,9 @@
         <div class="main_menu">
           <nav class="navbar navbar-expand-lg navbar-light">
             <div class="container">
-              <a class="navbar-brand logo_h" href="/"><img src="/assets/img/tsh.jpg" alt="" /></a>
+             <a class="navbar-brand logo_h" href="/">
+              <img src="/assets/img/home/brand-logo.jpg" alt="Logo" style="height: 50px; object-fit: contain;" />
+              </a>
               <button
                 class="navbar-toggler"
                 type="button"

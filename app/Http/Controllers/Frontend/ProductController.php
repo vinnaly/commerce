@@ -29,12 +29,6 @@ class ProductController extends Controller
         return view('frontend.product.collection', compact('products', 'categories'));
     }
 
-    // ✅ Halaman Home
-    public function index()
-    {
-        $categories = Category::all();
-        return view('frontend.home', compact('categories'));
-    }
 
     // ✅ Detail Produk
     public function detail($slug)
